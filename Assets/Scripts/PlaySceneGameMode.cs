@@ -29,47 +29,98 @@ public class PlaySceneGameMode : MonoBehaviour
     private EPlayMode playMode;
 
     private bool bIsDebugView = false;
+    private Tile currentlyHoveredTile = null;
 
     private void Start()
     {
         player = Instantiate<GameObject>(playerPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
+        player.SetActive(false);
     }
 
     private void Update()
     {
+        if(bIsDebugView && currentlyHoveredTile)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                SetUpActor();
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.H))
         {
             bIsDebugView = !bIsDebugView;
+            if (!bIsDebugView) currentlyHoveredTile = null;
             OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
         }
+        //if (Input.GetKeyDown(KeyCode.Keypad0) || Input.GetKeyDown(KeyCode.Alpha0))
+        //{
+        //    playMode = EPlayMode.Standby;
+        //    player.SetActive(false);
+        //    target.SetActive(false);
+        //    enemy.SetActive(false);
+        //}
+    }
 
-        if (Input.GetKeyDown(KeyCode.Keypad0) || Input.GetKeyDown(KeyCode.Alpha0))
+    private void FixedUpdate()
+    {
+        // Only run on debug view mode
+        if (bIsDebugView)
         {
-            playMode = EPlayMode.Standby;
-            player.SetActive(false);
-            target.SetActive(false);
-            enemy.SetActive(false);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            // If RayCast hit anything
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                // If it hits a Tile
+                if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile))
+                {
+                    // If the currentlyHoveredTile is not the tile that is currently being hovered on screen.
+                    if (currentlyHoveredTile != tile)
+                    {
+                        // If the currentlyHoveredTile is not null, which means we are unhovereing from a currently selected tile.
+                        if (currentlyHoveredTile) currentlyHoveredTile.ExitBeingHovered();
+
+                        // Set the currentlyHoveredTile to the tile that RayCast hit.
+                        currentlyHoveredTile = tile;
+                        currentlyHoveredTile.BeingHovered();
+                    }
+                }
+                // If the thing getting hit is not a Tile, which is unlikely, since we only have Tiles on screen
+                else
+                {
+                    if (currentlyHoveredTile)
+                    {
+                        currentlyHoveredTile.ExitBeingHovered();
+                        currentlyHoveredTile = null;
+                    }
+                }
+            }
+            // If Raycast not hitting anything
+            else
+            {
+                if(currentlyHoveredTile)
+                {
+                    currentlyHoveredTile.ExitBeingHovered();
+                    currentlyHoveredTile = null;
+                }
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            playMode = EPlayMode.LinearSeek;
-            SetUpActors(playMode);
-        }
-        else if (Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            playMode = EPlayMode.LinearFlee;
-            SetUpActors(playMode);
-        }
-        else if (Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            playMode = EPlayMode.LinearArrive;
-            SetUpActors(playMode);
-        }
-        else if (Input.GetKeyDown(KeyCode.Keypad4) || Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            playMode = EPlayMode.LinearAvoid;
-            SetUpActors(playMode);
-        }
+    }
+
+    private void SetUpActor()
+    {
+        player.SetActive(false);
+
+        Vector3 newPos = new Vector3(
+            currentlyHoveredTile.transform.position.x + 0.5f,
+            currentlyHoveredTile.transform.position.y,
+            currentlyHoveredTile.transform.position.z - 0.5f
+            );
+        player.transform.position = newPos;
+
+        player.SetActive(true);
+        //SoundManager.Instance.PlayEffectSound();
     }
 
     private void SetUpActors(EPlayMode playMode)
