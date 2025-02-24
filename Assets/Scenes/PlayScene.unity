@@ -510,7 +510,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1058617162}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65d5f7ee3c9cf7546adf0e9ec345e7ab, type: 3}
   m_Name: 
@@ -654,7 +654,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -50}
+  m_AnchoredPosition: {x: 25, y: -25}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1628569435
@@ -677,16 +677,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Press "0" to reset
+  m_text: 'Press "R" to reset
 
-    Press "1" to seek
+    Press "F" to find Shortest Path
 
-    Press "2" to flee
+    Press "H"
+    for Debug View
 
-    Press
-    "3" to arrive
+    Press "M" to move actor to the goal
 
-    Press "4" to avoid'
+    Total Path Cost:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

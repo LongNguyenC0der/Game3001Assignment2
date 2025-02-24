@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum EPlayMode : byte
@@ -11,12 +12,12 @@ public enum EPlayMode : byte
 
 public class PlaySceneGameMode : MonoBehaviour
 {
+    public class OnDebugViewToggledEventArgs : EventArgs { public bool bIsDebugView; }
+    public event EventHandler<OnDebugViewToggledEventArgs> OnDebugViewToggled;
+
     private const float BOUNDARY = 7.0f;
     private const float MOVE_SPEED = 3.0f;
     private const float TURN_SPEED = 100.0f;
-    private const float RADIUS = 1.0f;
-    private const float ENEMY_RADIUS = 2.0f;
-    private const float TIME_TO_TARGET = 2.0f;
 
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject targetPrefab;
@@ -27,18 +28,21 @@ public class PlaySceneGameMode : MonoBehaviour
 
     private EPlayMode playMode;
 
+    private bool bIsDebugView = false;
+
     private void Start()
     {
         player = Instantiate<GameObject>(playerPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
-        target = Instantiate<GameObject>(targetPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
-        enemy = Instantiate<GameObject>(enemyPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
-        player.SetActive(false);
-        target.SetActive(false);
-        enemy.SetActive(false);
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            bIsDebugView = !bIsDebugView;
+            OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
+        }
+
         if (Input.GetKeyDown(KeyCode.Keypad0) || Input.GetKeyDown(KeyCode.Alpha0))
         {
             playMode = EPlayMode.Standby;
@@ -65,26 +69,6 @@ public class PlaySceneGameMode : MonoBehaviour
         {
             playMode = EPlayMode.LinearAvoid;
             SetUpActors(playMode);
-        }
-
-        switch (playMode)
-        {
-            case EPlayMode.Standby:
-                break;
-            case EPlayMode.LinearSeek:
-                LinearSeek();
-                break;
-            case EPlayMode.LinearFlee:
-                LinearFlee();
-                break;
-            case EPlayMode.LinearArrive:
-                LinearArrive();
-                break;
-            case EPlayMode.LinearAvoid:
-                LinearAvoid();
-                break;
-            default:
-                break;
         }
     }
 
@@ -129,88 +113,15 @@ public class PlaySceneGameMode : MonoBehaviour
 
     private Vector3 GetRandomPosition()
     {
-        return new Vector3(Random.Range(-BOUNDARY, BOUNDARY), 0.0f, Random.Range(-BOUNDARY, BOUNDARY));
+        return new Vector3(UnityEngine.Random.Range(-BOUNDARY, BOUNDARY), 0.0f, UnityEngine.Random.Range(-BOUNDARY, BOUNDARY));
     }
 
     private void LinearSeek()
     {
         Vector3 direction = (target.transform.position - player.transform.position).normalized;
-        Vector3 distanceToMove = direction * MOVE_SPEED * Time.deltaTime;
+        Vector3 distanceToMove = MOVE_SPEED * Time.deltaTime * direction;
         player.transform.position += distanceToMove;
         Turning(direction);
-    }
-
-    private void LinearFlee()
-    {
-        Vector3 direction = (player.transform.position - enemy.transform.position).normalized;
-        Vector3 distanceToMove = direction * MOVE_SPEED * Time.deltaTime;
-        Vector3 newPosition = player.transform.position + distanceToMove;
-
-        float x = newPosition.x;
-        float z = newPosition.z;
-
-        if (player.transform.position.x >= BOUNDARY) x = BOUNDARY;
-        else if (player.transform.position.x <= -BOUNDARY) x = -BOUNDARY;
-        if (player.transform.position.z >= BOUNDARY) z = BOUNDARY;
-        else if (player.transform.position.z <= -BOUNDARY) z = -BOUNDARY;
-
-        newPosition.x = x;
-        newPosition.z = z;
-        player.transform.position = newPosition;
-
-        Turning(direction);
-    }
-
-    private void LinearArrive()
-    {
-        Vector3 distance = target.transform.position - player.transform.position;
-        if (distance.magnitude > RADIUS)
-        {
-            distance /= TIME_TO_TARGET;
-            if (distance.magnitude > MOVE_SPEED)
-            {
-                distance = distance.normalized * MOVE_SPEED;
-            }
-            Vector3 distanceToMove = distance * Time.deltaTime;
-            player.transform.position += distanceToMove;
-            Turning(distance);
-        }
-    }
-
-    private void LinearAvoid()
-    {
-        float weight = 1.0f;
-        float distanceToEnemy = Vector3.Distance(player.transform.position, enemy.transform.position);
-        Vector3 seekVelocity = target.transform.position - player.transform.position;
-        Vector3 fleeVelocity = player.transform.position - enemy.transform.position;
-
-        if (seekVelocity.magnitude > RADIUS)
-        {
-            if (distanceToEnemy < ENEMY_RADIUS)
-            {
-                weight = Mathf.Clamp01(distanceToEnemy - RADIUS) / ENEMY_RADIUS;
-            }
-            float magnitute = seekVelocity.magnitude;
-            seekVelocity = seekVelocity.normalized * weight;
-            fleeVelocity = fleeVelocity.normalized * (1.0f - weight);
-
-            Vector3 desiredVelocity = (seekVelocity + fleeVelocity).normalized;
-            desiredVelocity *= magnitute;
-            desiredVelocity /= TIME_TO_TARGET;
-            
-            if (desiredVelocity.magnitude > MOVE_SPEED)
-            {
-                desiredVelocity = desiredVelocity.normalized * MOVE_SPEED;
-            }
-
-            Vector3 distanceToMove = desiredVelocity * Time.deltaTime;
-            player.transform.position += distanceToMove;
-            Turning(desiredVelocity);
-        }
-        else
-        {
-            Turning(seekVelocity);
-        }
     }
 
     private void Turning(Vector3 direction)
