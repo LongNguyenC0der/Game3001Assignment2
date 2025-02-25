@@ -19,6 +19,7 @@ public class PlaySceneGameMode : MonoBehaviour
     private GameObject player;
     private GameObject target;
 
+    private bool bIsFindingPath = false;
     private bool bCanMove = false;
     private bool bIsDebugView = false;
     private Tile currentlyHoveredTile = null;
@@ -36,6 +37,7 @@ public class PlaySceneGameMode : MonoBehaviour
         target = Instantiate<GameObject>(targetPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
         player.SetActive(false);
         target.SetActive(false);
+        totalCostText.text = "Total Path Cost: ...";
     }
 
     private void Update()
@@ -56,22 +58,36 @@ public class PlaySceneGameMode : MonoBehaviour
         }
 
         // Setting start and end tile with mouse clicks
+        // We also don't want users to change start and end tile while the algorithm is running because it can be a bit funky and I don't want to deal with that
+        // After a path is found, you can do whatever you want otherwise
         if (bIsDebugView && currentlyHoveredTile)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (!bIsFindingPath && Input.GetMouseButtonDown(0))
             {
                 SetUpActor(currentlyHoveredTile);
                 gridMap.start = currentlyHoveredTile;
+
+                // If there's a path already, meaning there is a change of start tile. Proceed to pathfinding again!
+                if (path.Count > 0)
+                {
+                    PathFinding();
+                }
             }
-            else if (Input.GetMouseButtonDown(1))
+            else if (!bIsFindingPath && Input.GetMouseButtonDown(1))
             {
                 // Can't be the same with start tile
                 if (gridMap.start != currentlyHoveredTile)
                 {
                     SetUpGoal();
                     gridMap.end = currentlyHoveredTile;
+
+                    // If there's a path already, meaning there is a change of end tile. Proceed to pathfinding again!
+                    if (path.Count > 0)
+                    {
+                        PathFinding();
+                    }
                 }
-                // Display error if wanted.
+                // Else display error if wanted.
             }
         }
 
@@ -82,19 +98,13 @@ public class PlaySceneGameMode : MonoBehaviour
             target.SetActive(false);
             currentlyHoveredTile = null;
             gridMap.ResetAllTiles(true);
-            totalCostText.text = "Total Path Cost:";
+            totalCostText.text = "Total Path Cost: ...";
         }
 
         // Find Shortest Path
         else if (Input.GetKeyDown(KeyCode.F))
         {
-            if (gridMap.start && gridMap.end)
-            {
-                iterations = 0;
-                StopAllCoroutines();
-                gridMap.ResetAllTiles(false);
-                StartCoroutine(FindShortestPath());
-            }
+            PathFinding();
         }
 
         // Debug View Toggle
@@ -208,7 +218,9 @@ public class PlaySceneGameMode : MonoBehaviour
 
     private IEnumerator FindShortestPath()
     {
-        while(true)
+        bIsFindingPath = true;
+
+        while (true)
         {
             iterations++;
 
@@ -221,10 +233,23 @@ public class PlaySceneGameMode : MonoBehaviour
                     tile.BeingRetraced();
                 }
                 totalCostText.text = $"Total Path Cost: {totalPathCost}";
+                bIsFindingPath = false;
                 yield break;
             }
 
             yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    private void PathFinding()
+    {
+        if (gridMap.start && gridMap.end)
+        {
+            iterations = 0;
+            StopAllCoroutines();
+            gridMap.ResetAllTiles(false);
+            StartCoroutine(FindShortestPath());
+            totalCostText.text = "Total Path Cost: ...";
         }
     }
 
@@ -235,7 +260,7 @@ public class PlaySceneGameMode : MonoBehaviour
 
     private bool MovePlayer(Vector3 target)
     {
-        // Offset because of how we set up the Cube
+        // Offset because of how we set up the Cube(Tile)
         Vector3 offset = new Vector3(
             target.x + 0.5f,
             target.y,
