@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public int row;
-    public int col;
     [SerializeField] private TMP_Text costText;
-    [SerializeField] private int cost = 1;
     [SerializeField] private GameObject overlayGO;
     [SerializeField] private GameObject selectableGO;
-
     [SerializeField] private MeshRenderer cubeMesh;
     [SerializeField] private Material exploredMaterial;
     [SerializeField] private Material retracedMaterial;
     private Material originalMaterial;
+
+    private int row;
+    private int col;
+    private int cost;
 
     private bool bIsSelectable = true;
 
@@ -63,6 +63,10 @@ public class Tile : MonoBehaviour
         cubeMesh.material = originalMaterial;
     }
 
+    public int GetRow() { return row; }
+    public void SetRow(int newRow) { row = newRow; }
+    public int GetCol() { return col; }
+    public void SetCol(int newCol) { col = newCol; }
     public int GetCost() { return cost; }
     public void SetCost(int newCost) { cost = newCost; }
     public bool IsSelectable() { return bIsSelectable; }

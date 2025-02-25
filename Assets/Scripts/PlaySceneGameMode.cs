@@ -25,7 +25,7 @@ public class PlaySceneGameMode : MonoBehaviour
     private Tile currentlyHoveredTile = null;
 
     private GridMap gridMap;
-    public int iterations;
+    [SerializeField] private int iterations;
 
     private List<Tile> path = new List<Tile>();
     private Stack<Tile> waypoints = new Stack<Tile>();
@@ -66,7 +66,7 @@ public class PlaySceneGameMode : MonoBehaviour
             if (!bIsFindingPath && !bCanMove && Input.GetMouseButtonDown(0))
             {
                 SetUpActor(currentlyHoveredTile);
-                gridMap.start = currentlyHoveredTile;
+                gridMap.SetStartTile(currentlyHoveredTile);
 
                 // If there's a path already, meaning there is a change of start tile. Proceed to pathfinding again!
                 if (path.Count > 0)
@@ -77,16 +77,16 @@ public class PlaySceneGameMode : MonoBehaviour
             else if (!bIsFindingPath && !bCanMove && Input.GetMouseButtonDown(1))
             {
                 // Can't be the same with start tile
-                if (gridMap.start != currentlyHoveredTile)
+                if (gridMap.GetStartTile() != currentlyHoveredTile)
                 {
                     SetUpGoal();
-                    gridMap.end = currentlyHoveredTile;
+                    gridMap.SetEndTile(currentlyHoveredTile);
 
                     // If there's a path already, meaning there is a change of end tile. Proceed to pathfinding again!
                     if (path.Count > 0)
                     {
                         // Reset actor back to the start position in case we change the end tile after the actor has moved.
-                        if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.start);
+                        if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.GetStartTile());
 
                         PathFinding();
                     }
@@ -109,9 +109,9 @@ public class PlaySceneGameMode : MonoBehaviour
         // Find Shortest Path
         else if (!bCanMove && Input.GetKeyDown(KeyCode.F))
         {
-            if (gridMap.start)
+            if (gridMap.GetStartTile())
             {
-                if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.start);
+                if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.GetStartTile());
             }
             
             PathFinding();
@@ -140,7 +140,7 @@ public class PlaySceneGameMode : MonoBehaviour
 
                 // If the player is not at the start location, it means the user wants to redo the movement again
                 // So we'll just teleport the player back to the start position
-                if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.start);
+                if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.GetStartTile());
 
                 bCanMove = true;
             }
@@ -231,7 +231,7 @@ public class PlaySceneGameMode : MonoBehaviour
         {
             iterations++;
 
-            path = Pathing.Dijkstra(gridMap.start, gridMap.end, gridMap.GetTileList(), iterations, gridMap, out float totalPathCost);
+            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost);
 
             if (path.Count > 0)
             {
@@ -250,7 +250,7 @@ public class PlaySceneGameMode : MonoBehaviour
 
     private void PathFinding()
     {
-        if (gridMap.start && gridMap.end)
+        if (gridMap.GetStartTile() && gridMap.GetStartTile())
         {
             iterations = 0;
             StopAllCoroutines();
@@ -266,7 +266,7 @@ public class PlaySceneGameMode : MonoBehaviour
     }
     private bool HasPlayerMovedFromStartingLocation()
     {
-        return Vector3.Distance(player.transform.position, gridMap.start.transform.position) >= 1f;
+        return Vector3.Distance(player.transform.position, gridMap.GetStartTile().transform.position) >= 1f;
     }
 
     private bool MovePlayer(Vector3 target)

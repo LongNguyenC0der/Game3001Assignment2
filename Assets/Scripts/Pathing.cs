@@ -26,7 +26,7 @@ public static class Pathing
 
         Dictionary<Tile, float> open = new Dictionary<Tile, float>();
         open.Add(start, 0.0f);
-        nodes[start.row, start.col].cost = 0.0f;
+        nodes[start.GetRow(), start.GetCol()].cost = 0.0f;
 
         bool found = false;
         HashSet<Tile> debugTiles = new HashSet<Tile>();
@@ -50,7 +50,7 @@ public static class Pathing
             // Stop searching if we've reached our goal
             if (front.Equals(end))
             {
-                tempTotalCost = nodes[front.row, front.col].cost;
+                tempTotalCost = nodes[front.GetRow(), front.GetCol()].cost;
                 found = true;
                 break;
             }
@@ -61,13 +61,13 @@ public static class Pathing
             // Update tile cost and add it to open list if the new cost is cheaper than the old cost
             foreach (Tile adj in Adjacent(front, gridMap.GetTileList(), GridMap.ROWS, GridMap.COLUMNS))
             {
-                float previousCost = nodes[adj.row, adj.col].cost;
-                float currentCost = nodes[front.row, front.col].cost + adj.GetCost();
+                float previousCost = nodes[adj.GetRow(), adj.GetCol()].cost;
+                float currentCost = nodes[front.GetRow(), front.GetCol()].cost + adj.GetCost();
                 if (currentCost < previousCost)
                 {
                     open.Add(adj, currentCost);
-                    nodes[adj.row, adj.col].cost = currentCost;
-                    nodes[adj.row, adj.col].previousTile = front;
+                    nodes[adj.GetRow(), adj.GetCol()].cost = currentCost;
+                    nodes[adj.GetRow(), adj.GetCol()].previousTile = front;
                 }
             }
         }
@@ -94,7 +94,7 @@ public static class Pathing
         Tile current = end;
 
         // Previous is the tile that came before the current tile
-        Tile previous = nodes[current.row, current.col].previousTile;
+        Tile previous = nodes[current.GetRow(), current.GetCol()].previousTile;
 
         // Search until nothing came before the previous tile, meaning we've reached start!
         while(previous)
@@ -104,7 +104,7 @@ public static class Pathing
             // Set current equal to previous
             current = previous;
             // Set previous equal to the tile that came before current
-            previous = nodes[current.row, current.col].previousTile;
+            previous = nodes[current.GetRow(), current.GetCol()].previousTile;
         }
 
         return path;
@@ -114,24 +114,24 @@ public static class Pathing
     {
         List<Tile> tiles = new List<Tile>();
 
-        if (tile.col - 1 >= 0)
+        if (tile.GetCol() - 1 >= 0)
         {
-            Tile left = tileList[tile.row][tile.col - 1];
+            Tile left = tileList[tile.GetRow()][tile.GetCol() - 1];
             tiles.Add(left);
         }
-        if (tile.col + 1 < cols)
+        if (tile.GetCol() + 1 < cols)
         {
-            Tile right = tileList[tile.row][tile.col + 1];
+            Tile right = tileList[tile.GetRow()][tile.GetCol() + 1];
             tiles.Add(right);
         }
-        if (tile.row - 1 >= 0)
+        if (tile.GetRow() - 1 >= 0)
         {
-            Tile up = tileList[tile.row - 1][tile.col];
+            Tile up = tileList[tile.GetRow() - 1][tile.GetCol()];
             tiles.Add(up);
         }
-        if (tile.row + 1 < rows)
+        if (tile.GetRow() + 1 < rows)
         {
-            Tile down = tileList[tile.row + 1][tile.col];
+            Tile down = tileList[tile.GetRow() + 1][tile.GetCol()];
             tiles.Add(down);
         }
         

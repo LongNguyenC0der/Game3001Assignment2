@@ -34,8 +34,8 @@ public class GridMap : MonoBehaviour
 
     private List<List<Tile>> tileList = new List<List<Tile>>();
 
-    public Tile start;
-    public Tile end;
+    private Tile start;
+    private Tile end;
 
     private void Start()
     {
@@ -72,8 +72,8 @@ public class GridMap : MonoBehaviour
                 {
                     Tile tile = Instantiate<Tile>(tileToSpawn, this.transform);
                     tile.transform.position = new Vector3(x, 0, z);
-                    tile.row = row;
-                    tile.col = col;
+                    tile.SetRow(row);
+                    tile.SetCol(col);
                     tile.SetCost((int)type);
                     rowTileList.Add(tile);
                     x += 1.0f;
@@ -102,5 +102,9 @@ public class GridMap : MonoBehaviour
         }
     }
 
+    public Tile GetStartTile() { return start; }
+    public void SetStartTile(Tile newStart) { start = newStart; }
+    public Tile GetEndTile() { return end; }
+    public void SetEndTile(Tile newEnd) { end = newEnd; }
     public List<List<Tile>> GetTileList() { return tileList; }
 }
