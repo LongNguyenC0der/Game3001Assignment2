@@ -59,10 +59,11 @@ public class PlaySceneGameMode : MonoBehaviour
 
         // Setting start and end tile with mouse clicks
         // We also don't want users to change start and end tile while the algorithm is running because it can be a bit funky and I don't want to deal with that
-        // After a path is found, you can do whatever you want otherwise
+        // Also...The same thing with while the character is moving
+        // You can do whatever you want otherwise
         if (bIsDebugView && currentlyHoveredTile)
         {
-            if (!bIsFindingPath && Input.GetMouseButtonDown(0))
+            if (!bIsFindingPath && !bCanMove && Input.GetMouseButtonDown(0))
             {
                 SetUpActor(currentlyHoveredTile);
                 gridMap.start = currentlyHoveredTile;
@@ -73,7 +74,7 @@ public class PlaySceneGameMode : MonoBehaviour
                     PathFinding();
                 }
             }
-            else if (!bIsFindingPath && Input.GetMouseButtonDown(1))
+            else if (!bIsFindingPath && !bCanMove && Input.GetMouseButtonDown(1))
             {
                 // Can't be the same with start tile
                 if (gridMap.start != currentlyHoveredTile)
@@ -84,6 +85,9 @@ public class PlaySceneGameMode : MonoBehaviour
                     // If there's a path already, meaning there is a change of end tile. Proceed to pathfinding again!
                     if (path.Count > 0)
                     {
+                        // Reset actor back to the start position in case we change the end tile after the actor has moved.
+                        if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.start);
+
                         PathFinding();
                     }
                 }
@@ -98,12 +102,18 @@ public class PlaySceneGameMode : MonoBehaviour
             target.SetActive(false);
             currentlyHoveredTile = null;
             gridMap.ResetAllTiles(true);
+            path.Clear();
             totalCostText.text = "Total Path Cost: ...";
         }
 
         // Find Shortest Path
-        else if (Input.GetKeyDown(KeyCode.F))
+        else if (!bCanMove && Input.GetKeyDown(KeyCode.F))
         {
+            if (gridMap.start)
+            {
+                if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.start);
+            }
+            
             PathFinding();
         }
 
@@ -130,10 +140,7 @@ public class PlaySceneGameMode : MonoBehaviour
 
                 // If the player is not at the start location, it means the user wants to redo the movement again
                 // So we'll just teleport the player back to the start position
-                if (Vector3.Distance(player.transform.position, waypoints.Peek().transform.position) >= 1f )
-                {
-                    SetUpActor(waypoints.Peek());
-                }
+                if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.start);
 
                 bCanMove = true;
             }
@@ -256,6 +263,10 @@ public class PlaySceneGameMode : MonoBehaviour
     private Vector3 GetRandomPosition()
     {
         return new Vector3(UnityEngine.Random.Range(-BOUNDARY, BOUNDARY), 0.0f, UnityEngine.Random.Range(-BOUNDARY, BOUNDARY));
+    }
+    private bool HasPlayerMovedFromStartingLocation()
+    {
+        return Vector3.Distance(player.transform.position, gridMap.start.transform.position) >= 1f;
     }
 
     private bool MovePlayer(Vector3 target)
