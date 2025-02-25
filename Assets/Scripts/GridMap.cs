@@ -51,10 +51,14 @@ public class GridMap : MonoBehaviour
         }
     }
 
-    public void ResetAllTiles()
+    public void ResetAllTiles(bool bIsHardReset)
     {
-        start = null;
-        end = null;
+        if (bIsHardReset)
+        {
+            start = null;
+            end = null;
+        }
+        
         foreach (List<Tile> rowTileList in tileList)
         {
             foreach (Tile tile in rowTileList)

@@ -53,7 +53,7 @@ public static class Pathing
                 break;
             }
 
-            // If DebugDraw
+            // If we want to see the visual
             debugTiles.Add(front);
 
             // Update tile cost and add it to open list if the new cost is cheaper than the old cost
@@ -74,7 +74,6 @@ public static class Pathing
         {
             foreach (Tile tile in debugTiles)
             {
-                // tile.change color or something
                 tile.BeingExplored();
             }
         }
