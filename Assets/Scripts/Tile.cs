@@ -15,12 +15,16 @@ public class Tile : MonoBehaviour
     [SerializeField] private Material retracedMaterial;
     private Material originalMaterial;
 
+    private bool bIsSelectable = true;
+
     private void Start()
     {
         originalMaterial = cubeMesh.material;
 
         costText.text = cost.ToString();
         costText.gameObject.SetActive(false);
+
+        bIsSelectable = cost < (int)GridMap.ETileType.WALL;
 
         FindFirstObjectByType<PlaySceneGameMode>().OnDebugViewToggled += PlaySceneGameMode_OnDebugViewToggled;
     }
@@ -60,4 +64,6 @@ public class Tile : MonoBehaviour
     }
 
     public int GetCost() { return cost; }
+    public void SetCost(int newCost) { cost = newCost; }
+    public bool IsSelectable() { return bIsSelectable; }
 }

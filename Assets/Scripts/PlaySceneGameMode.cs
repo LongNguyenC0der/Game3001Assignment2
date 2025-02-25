@@ -157,8 +157,8 @@ public class PlaySceneGameMode : MonoBehaviour
             // If RayCast hit anything
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                // If it hits a Tile
-                if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile))
+                // If it hits a Tile and the Tile is selectable (A.K.A not a Wall)
+                if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile) && tile.IsSelectable())
                 {
                     // If the currentlyHoveredTile is not the tile that is currently being hovered on screen.
                     if (currentlyHoveredTile != tile)
