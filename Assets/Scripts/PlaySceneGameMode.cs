@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlaySceneGameMode : MonoBehaviour
@@ -12,6 +13,7 @@ public class PlaySceneGameMode : MonoBehaviour
     private const float MOVE_SPEED = 2.0f;
     private const float TURN_SPEED = 100.0f;
 
+    [SerializeField] private TMP_Text totalCostText;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject targetPrefab;
     private GameObject player;
@@ -80,6 +82,7 @@ public class PlaySceneGameMode : MonoBehaviour
             target.SetActive(false);
             currentlyHoveredTile = null;
             gridMap.ResetAllTiles(true);
+            totalCostText.text = "Total Path Cost:";
         }
 
         // Find Shortest Path
@@ -209,7 +212,7 @@ public class PlaySceneGameMode : MonoBehaviour
         {
             iterations++;
 
-            path = Pathing.Dijkstra(gridMap.start, gridMap.end, gridMap.GetTileList(), iterations, gridMap);
+            path = Pathing.Dijkstra(gridMap.start, gridMap.end, gridMap.GetTileList(), iterations, gridMap, out float totalPathCost);
 
             if (path.Count > 0)
             {
@@ -217,6 +220,7 @@ public class PlaySceneGameMode : MonoBehaviour
                 {
                     tile.BeingRetraced();
                 }
+                totalCostText.text = $"Total Path Cost: {totalPathCost}";
                 yield break;
             }
 
