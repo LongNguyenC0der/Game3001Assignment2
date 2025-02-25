@@ -1,14 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
-public enum EPlayMode : byte
-{
-    Standby,
-    LinearSeek,
-    LinearFlee,
-    LinearArrive,
-    LinearAvoid
-}
 
 public class PlaySceneGameMode : MonoBehaviour
 {
@@ -24,17 +17,20 @@ public class PlaySceneGameMode : MonoBehaviour
     [SerializeField] private GameObject enemyPrefab;
     private GameObject player;
     private GameObject target;
-    private GameObject enemy;
-
-    private EPlayMode playMode;
 
     private bool bIsDebugView = false;
     private Tile currentlyHoveredTile = null;
 
+    private GridMap gridMap;
+    public int iterations;
+
     private void Start()
     {
+        gridMap = FindFirstObjectByType<GridMap>();
         player = Instantiate<GameObject>(playerPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
+        target = Instantiate<GameObject>(targetPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
         player.SetActive(false);
+        target.SetActive(false);
     }
 
     private void Update()
@@ -44,22 +40,45 @@ public class PlaySceneGameMode : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 SetUpActor();
+                gridMap.start = currentlyHoveredTile;
+            }
+            else if (Input.GetMouseButtonDown(1))
+            {
+                // Select the goal tile here
+                // Can't be the same with start tile
+                if (gridMap.start != currentlyHoveredTile)
+                {
+                    SetUpGoal();
+                    gridMap.end = currentlyHoveredTile;
+                }
+                // Display error if wanted.
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            player.SetActive(false);
+            target.SetActive(false);
+            currentlyHoveredTile = null;
+            gridMap.ResetAllTiles();
+        }
+
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (gridMap.start && gridMap.end)
+            {
+                iterations = 0;
+                StopAllCoroutines();
+                StartCoroutine(FindShortestPath());
+            }
+        }
+
+        else if (Input.GetKeyDown(KeyCode.H))
         {
             bIsDebugView = !bIsDebugView;
             if (!bIsDebugView) currentlyHoveredTile = null;
             OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
         }
-        //if (Input.GetKeyDown(KeyCode.Keypad0) || Input.GetKeyDown(KeyCode.Alpha0))
-        //{
-        //    playMode = EPlayMode.Standby;
-        //    player.SetActive(false);
-        //    target.SetActive(false);
-        //    enemy.SetActive(false);
-        //}
     }
 
     private void FixedUpdate()
@@ -84,6 +103,11 @@ public class PlaySceneGameMode : MonoBehaviour
                         // Set the currentlyHoveredTile to the tile that RayCast hit.
                         currentlyHoveredTile = tile;
                         currentlyHoveredTile.BeingHovered();
+                        // Test adjacent
+                        //foreach (Tile t in Pathing.Adjacent(currentlyHoveredTile, gridMap.GetTileList(), GridMap.ROWS, GridMap.COLUMNS))
+                        //{
+                        //    t.BeingHovered();
+                        //}
                     }
                 }
                 // If the thing getting hit is not a Tile, which is unlikely, since we only have Tiles on screen
@@ -123,42 +147,39 @@ public class PlaySceneGameMode : MonoBehaviour
         //SoundManager.Instance.PlayEffectSound();
     }
 
-    private void SetUpActors(EPlayMode playMode)
+    private void SetUpGoal()
     {
-        player.SetActive(false);
         target.SetActive(false);
-        enemy.SetActive(false);
 
-        switch (playMode)
+        Vector3 newPos = new Vector3(
+            currentlyHoveredTile.transform.position.x + 0.5f,
+            currentlyHoveredTile.transform.position.y,
+            currentlyHoveredTile.transform.position.z - 0.5f
+            );
+        target.transform.position = newPos;
+
+        target.SetActive(true);
+        //SoundManager.Instance.PlayEffectSound();
+    }
+
+    private IEnumerator FindShortestPath()
+    {
+        while(true)
         {
-            case EPlayMode.Standby:
-                break;
-            case EPlayMode.LinearSeek:
-            case EPlayMode.LinearArrive:
-                player.transform.position = GetRandomPosition();
-                target.transform.position = GetRandomPosition();
-                player.SetActive(true);
-                target.SetActive(true);
-                SoundManager.Instance.PlayEffectSound();
-                break;
-            case EPlayMode.LinearFlee:
-                player.transform.position = GetRandomPosition();
-                enemy.transform.position = GetRandomPosition();
-                player.SetActive(true);
-                enemy.SetActive(true);
-                SoundManager.Instance.PlayEffectSound();
-                break;
-            case EPlayMode.LinearAvoid:
-                player.transform.position = GetRandomPosition();
-                target.transform.position = GetRandomPosition();
-                enemy.transform.position = player.transform.position + ((target.transform.position - player.transform.position) / 2.0f);
-                player.SetActive(true);
-                target.SetActive(true);
-                enemy.SetActive(true);
-                SoundManager.Instance.PlayEffectSound();
-                break;
-            default:
-                break;
+            iterations++;
+
+            List<Tile> path = Pathing.Dijkstra(gridMap.start, gridMap.end, gridMap.GetTileList(), iterations, gridMap);
+
+            if (path.Count > 0)
+            {
+                foreach (Tile tile in path)
+                {
+                    tile.BeingRetraced();
+                }
+                yield break;
+            }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

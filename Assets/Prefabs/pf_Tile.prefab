@@ -48,10 +48,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ed038536042a8e45a3bffd43862e1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  row: 0
+  col: 0
   costText: {fileID: 6446930373962104387}
   cost: 1
   overlayGO: {fileID: 6416307126058998155}
   selectableGO: {fileID: 2686250621182249742}
+  cubeMesh: {fileID: 4858562599170140395}
+  exploredMaterial: {fileID: 2100000, guid: 037b3f8f8451aca4b8d35e198c7d0479, type: 2}
+  retracedMaterial: {fileID: 2100000, guid: 5f79a81c938441f418686a2715e7e061, type: 2}
 --- !u!65 &6683373717174422858
 BoxCollider:
   m_ObjectHideFlags: 0
