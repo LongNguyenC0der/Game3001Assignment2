@@ -62,7 +62,7 @@ public class PlaySceneGameMode : MonoBehaviour
         // We also don't want users to change start and end tile while the algorithm is running because it can be a bit funky and I don't want to deal with that
         // Also...The same thing with while the character is moving
         // You can do whatever you want otherwise
-        if (bIsDebugView && currentlyHoveredTile)
+        if (bIsDebugView && currentlyHoveredTile && currentlyHoveredTile.IsSelectable())
         {
             if (!bIsFindingPath && !bCanMove && Input.GetMouseButtonDown(0))
             {
@@ -156,7 +156,7 @@ public class PlaySceneGameMode : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             // If it hits a Tile and the Tile is selectable (A.K.A not a Wall)
-            if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile) && tile.IsSelectable())
+            if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile))
             {
                 // If the currentlyHoveredTile is not the tile that is currently being hovered on screen.
                 if (currentlyHoveredTile != tile)
@@ -231,9 +231,7 @@ public class PlaySceneGameMode : MonoBehaviour
         {
             iterations++;
 
-            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost, out float currentCostSoFar, out float heuristic);
-
-            //pathInfoText.text = $"F: {currentCostSoFar}\nG: {currentCostSoFar}\nH: {heuristic}";
+            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost, out float heuristic);
 
             if (path.Count > 0)
             {

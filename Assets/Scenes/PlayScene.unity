@@ -493,10 +493,7 @@ MonoBehaviour:
     the start or end tile will redo pathfinding immediately (I think it is one of
     the requirement)
 
-    4. Wall tiles are unselectable for obvious reasons
-
-    5.
-    Have fun!'
+    4. Have fun!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -708,7 +705,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -25, y: -25}
-  m_SizeDelta: {x: 150, y: 25}
+  m_SizeDelta: {x: 175, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1171287625
 MonoBehaviour:

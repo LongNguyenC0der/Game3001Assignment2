@@ -12,7 +12,7 @@ public struct Node
 public static class Pathing
 {
     
-    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost, out float currentCostSoFar, out float heuristic)
+    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost, out float heuristic)
     {
         Node[,] nodes = new Node[GridMap.ROWS, GridMap.COLUMNS];
         for (int row = 0; row < GridMap.ROWS; row++)
@@ -27,13 +27,12 @@ public static class Pathing
 
         Dictionary<Tile, float> open = new Dictionary<Tile, float>();
         open.Add(start, 0.0f);
-        nodes[start.GetRow(), start.GetCol()].cost = 0.0f;
+        nodes[start.Row, start.Col].cost = 0.0f;
 
         bool found = false;
         HashSet<Tile> debugTiles = new HashSet<Tile>();
 
         totalPathCost = 0.0f;
-        currentCostSoFar = 0.0f;
         heuristic = 0.0f;
 
         for (int i = 0; i < iterations; i++)
@@ -42,24 +41,14 @@ public static class Pathing
             Tile front = open.OrderBy((key) => key.Value).First().Key;
             open.Remove(front);
 
-            // Examine the tile with the lowest cost
-            //foreach (KeyValuePair<Tile, float> tile in open.OrderBy((key) => key.Value))
-            //{
-            //    if (open.ContainsKey(tile.Key))
-            //    {
-            //        front = tile.Key;
-            //        open.Remove(tile.Key);
-            //        break;
-            //    }
-            //}
-
-            //if (!front) Debug.LogError("Something went wrong!");
-
             // Stop searching if we've reached our goal
             if (front.Equals(end))
             {
-                totalPathCost = nodes[front.GetRow(), front.GetCol()].cost;
-                currentCostSoFar = totalPathCost;
+                totalPathCost = nodes[front.Row, front.Col].cost;
+
+                //F,G,H for end tile
+                nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
+
                 found = true;
                 break;
             }
@@ -70,25 +59,29 @@ public static class Pathing
             // Update tile cost and add it to open list if the new cost is cheaper than the old cost
             foreach (Tile adj in Adjacent(front, gridMap.GetTileList(), GridMap.ROWS, GridMap.COLUMNS))
             {
-                float previousCost = nodes[adj.GetRow(), adj.GetCol()].cost;
-                float currentCost = nodes[front.GetRow(), front.GetCol()].cost + adj.GetCost();
+                float previousCost = nodes[adj.Row, adj.Col].cost;
+                float currentCost = nodes[front.Row, front.Col].cost + adj.Cost;
+
+                //F,G,H for each tile
+                nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
+
+
                 // Manhattan Distance (absolute sum of differences)
-                float h = Mathf.Abs(end.GetRow() - adj.GetRow()) + Mathf.Abs(end.GetCol() - adj.GetCol());
+                float h = Mathf.Abs(end.Row - adj.Row) + Mathf.Abs(end.Col - adj.Col);
                 heuristic = h;
                 // f = g + h (Estimated Total Cost)
                 float f = currentCost + h;
-                Debug.Log($"F:{f}");
+
                 // Note to self: pretty funky to wrap my head around
                 // F only determine which tile to explore first
                 // G is the actual path, so we only compare G
                 if (currentCost < previousCost)
                 {
-                    currentCostSoFar = currentCost;
                     if (open.ContainsKey(adj)) open[adj] = f;
                     else open.Add(adj, f);
-                    //    open.Add(adj, f);
-                    nodes[adj.GetRow(), adj.GetCol()].cost = currentCost;
-                    nodes[adj.GetRow(), adj.GetCol()].previousTile = front;
+
+                    nodes[adj.Row, adj.Col].cost = currentCost;
+                    nodes[adj.Row, adj.Col].previousTile = front;
                 }
             }
         }
@@ -114,7 +107,7 @@ public static class Pathing
         Tile current = end;
 
         // Previous is the tile that came before the current tile
-        Tile previous = nodes[current.GetRow(), current.GetCol()].previousTile;
+        Tile previous = nodes[current.Row, current.Col].previousTile;
 
         // Search until nothing came before the previous tile, meaning we've reached start!
         while(previous)
@@ -124,7 +117,7 @@ public static class Pathing
             // Set current equal to previous
             current = previous;
             // Set previous equal to the tile that came before current
-            previous = nodes[current.GetRow(), current.GetCol()].previousTile;
+            previous = nodes[current.Row, current.Col].previousTile;
         }
 
         return path;
@@ -134,24 +127,24 @@ public static class Pathing
     {
         List<Tile> tiles = new List<Tile>();
 
-        if (tile.GetCol() - 1 >= 0)
+        if (tile.Col - 1 >= 0)
         {
-            Tile left = tileList[tile.GetRow()][tile.GetCol() - 1];
+            Tile left = tileList[tile.Row][tile.Col - 1];
             tiles.Add(left);
         }
-        if (tile.GetCol() + 1 < cols)
+        if (tile.Col + 1 < cols)
         {
-            Tile right = tileList[tile.GetRow()][tile.GetCol() + 1];
+            Tile right = tileList[tile.Row][tile.Col + 1];
             tiles.Add(right);
         }
-        if (tile.GetRow() - 1 >= 0)
+        if (tile.Row - 1 >= 0)
         {
-            Tile up = tileList[tile.GetRow() - 1][tile.GetCol()];
+            Tile up = tileList[tile.Row - 1][tile.Col];
             tiles.Add(up);
         }
-        if (tile.GetRow() + 1 < rows)
+        if (tile.Row + 1 < rows)
         {
-            Tile down = tileList[tile.GetRow() + 1][tile.GetCol()];
+            Tile down = tileList[tile.Row + 1][tile.Col];
             tiles.Add(down);
         }
         

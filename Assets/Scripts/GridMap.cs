@@ -72,9 +72,9 @@ public class GridMap : MonoBehaviour
                 {
                     Tile tile = Instantiate<Tile>(tileToSpawn, this.transform);
                     tile.transform.position = new Vector3(x, 0, z);
-                    tile.SetRow(row);
-                    tile.SetCol(col);
-                    tile.SetCost((int)type);
+                    tile.Row = row;
+                    tile.Col = col;
+                    tile.Cost = (int)type;
                     rowTileList.Add(tile);
                     x += 1.0f;
                 }

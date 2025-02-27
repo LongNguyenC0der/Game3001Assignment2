@@ -11,45 +11,55 @@ public class Tile : MonoBehaviour
     [SerializeField] private Material retracedMaterial;
     private Material originalMaterial;
 
-    private int row;
-    private int col;
-    private int cost;
+    private float f = -1.0f;
+    private float g = -1.0f;
+
+    public int Row { get; set; }
+    public int Col { get; set; }
+    public int Cost { get; set; }
+    public float F { get; set; }
+    public float G
+    {
+        get => g;
+        set
+        {
+            g = value;
+            UpdateInfoText();
+        }
+    }
+    public float H { get; set; }
 
     private bool bIsSelectable = true;
+    private bool bIsDebugView = false;
 
     private void Start()
     {
         originalMaterial = cubeMesh.material;
 
-        infoText.text = $"P: ({row},{col})\n" +
-            $"Cost: {cost}\n" +
-            $"F:\n" +
-            $"G:\n" +
-            $"H:\n" +
-            $"{(GridMap.ETileType)cost}";
+        UpdateInfoText();
         infoText.gameObject.SetActive(false);
 
-        bIsSelectable = cost < (int)GridMap.ETileType.WALL;
+        bIsSelectable = Cost < (int)GridMap.ETileType.WALL;
 
         FindFirstObjectByType<PlaySceneGameMode>().OnDebugViewToggled += PlaySceneGameMode_OnDebugViewToggled;
     }
 
     private void PlaySceneGameMode_OnDebugViewToggled(object sender, PlaySceneGameMode.OnDebugViewToggledEventArgs e)
     {
-        infoText.gameObject.SetActive(e.bIsDebugView);
-        overlayGO.SetActive(e.bIsDebugView);
-        //selectableGO.SetActive(false);
+        this.bIsDebugView = e.bIsDebugView;
+        infoText.gameObject.SetActive(bIsDebugView);
+        overlayGO.SetActive(bIsDebugView);
     }
 
     public void BeingHovered()
     {
-        //overlayGO.SetActive(false);
+        if (bIsDebugView) overlayGO.SetActive(false);
         selectableGO.SetActive(true);
     }
 
     public void ExitBeingHovered()
     {
-        //overlayGO.SetActive(true);
+        if (bIsDebugView) overlayGO.SetActive(true);
         selectableGO.SetActive(false);
     }
 
@@ -66,14 +76,19 @@ public class Tile : MonoBehaviour
     public void ResetTile()
     {
         cubeMesh.material = originalMaterial;
+        G = -1.0f;
     }
 
-    public int GetRow() { return row; }
-    public void SetRow(int newRow) { row = newRow; }
-    public int GetCol() { return col; }
-    public void SetCol(int newCol) { col = newCol; }
-    public int GetCost() { return cost; }
-    public void SetCost(int newCost) { cost = newCost; }
+    public void UpdateInfoText()
+    {
+        infoText.text = $"P: ({Row},{Col})\n" +
+            $"Cost: {Cost}\n" +
+            $"F: {F}\n" +
+            $"G: {(G < 0 ? "N/A" : G)}\n" +
+            $"H: {H}\n" +
+            $"{(GridMap.ETileType)Cost}";
+    }
+
     public bool IsSelectable() { return bIsSelectable; }
     public string GetInfoText() { return infoText.text; }
 }
