@@ -235,9 +235,9 @@ public class PlaySceneGameMode : MonoBehaviour
         {
             iterations++;
 
-            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost, out float currentCostSoFar);
+            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost, out float currentCostSoFar, out float heuristic);
 
-            pathInfoText.text = $"F: {currentCostSoFar}\nG: {currentCostSoFar}\nH:";
+            pathInfoText.text = $"F: {currentCostSoFar}\nG: {currentCostSoFar}\nH: {heuristic}";
 
             if (path.Count > 0)
             {

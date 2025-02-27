@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    [SerializeField] private TMP_Text positionText;
     [SerializeField] private TMP_Text costText;
     [SerializeField] private GameObject overlayGO;
     [SerializeField] private GameObject selectableGO;
@@ -23,6 +24,8 @@ public class Tile : MonoBehaviour
 
         costText.text = cost.ToString();
         costText.gameObject.SetActive(false);
+        positionText.text = $"P: ({row},{col})";
+        positionText.gameObject.SetActive(false);
 
         bIsSelectable = cost < (int)GridMap.ETileType.WALL;
 
@@ -32,6 +35,7 @@ public class Tile : MonoBehaviour
     private void PlaySceneGameMode_OnDebugViewToggled(object sender, PlaySceneGameMode.OnDebugViewToggledEventArgs e)
     {
         costText.gameObject.SetActive(e.bIsDebugView);
+        positionText.gameObject.SetActive(e.bIsDebugView);
         overlayGO.SetActive(e.bIsDebugView);
         selectableGO.SetActive(false);
     }

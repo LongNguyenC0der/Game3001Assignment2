@@ -12,7 +12,7 @@ public struct Node
 public static class Pathing
 {
     
-    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost, out float currentCostSoFar)
+    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost, out float currentCostSoFar, out float heuristic)
     {
         Node[,] nodes = new Node[GridMap.ROWS, GridMap.COLUMNS];
         for (int row = 0; row < GridMap.ROWS; row++)
@@ -34,23 +34,26 @@ public static class Pathing
 
         totalPathCost = 0.0f;
         currentCostSoFar = 0.0f;
+        heuristic = 0.0f;
 
         for (int i = 0; i < iterations; i++)
         {
-            Tile front = null;
+            // Examine the tile with the lowest cost
+            Tile front = open.OrderBy((key) => key.Value).First().Key;
+            open.Remove(front);
 
             // Examine the tile with the lowest cost
-            foreach (KeyValuePair<Tile, float> tile in open.OrderBy((key) => key.Value))
-            {
-                if (open.ContainsKey(tile.Key))
-                {
-                    front = tile.Key;
-                    open.Remove(tile.Key);
-                    break;
-                }
-            }
+            //foreach (KeyValuePair<Tile, float> tile in open.OrderBy((key) => key.Value))
+            //{
+            //    if (open.ContainsKey(tile.Key))
+            //    {
+            //        front = tile.Key;
+            //        open.Remove(tile.Key);
+            //        break;
+            //    }
+            //}
 
-            if (!front) Debug.LogError("Something went wrong!");
+            //if (!front) Debug.LogError("Something went wrong!");
 
             // Stop searching if we've reached our goal
             if (front.Equals(end))
@@ -69,10 +72,21 @@ public static class Pathing
             {
                 float previousCost = nodes[adj.GetRow(), adj.GetCol()].cost;
                 float currentCost = nodes[front.GetRow(), front.GetCol()].cost + adj.GetCost();
+                // Manhattan Distance (absolute sum of differences)
+                float h = Mathf.Abs(end.GetRow() - adj.GetRow()) + Mathf.Abs(end.GetCol() - adj.GetCol());
+                heuristic = h;
+                // f = g + h (Estimated Total Cost)
+                float f = currentCost + h;
+                Debug.Log($"F:{f}");
+                // Note to self: pretty funky to wrap my head around
+                // F only determine which tile to explore first
+                // G is the actual path, so we only compare G
                 if (currentCost < previousCost)
                 {
                     currentCostSoFar = currentCost;
-                    open.Add(adj, currentCost);
+                    if (open.ContainsKey(adj)) open[adj] = f;
+                    else open.Add(adj, f);
+                    //    open.Add(adj, f);
                     nodes[adj.GetRow(), adj.GetCol()].cost = currentCost;
                     nodes[adj.GetRow(), adj.GetCol()].previousTile = front;
                 }
