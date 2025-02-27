@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [SerializeField] private TMP_Text positionText;
-    [SerializeField] private TMP_Text costText;
+    [SerializeField] private TMP_Text infoText;
     [SerializeField] private GameObject overlayGO;
     [SerializeField] private GameObject selectableGO;
     [SerializeField] private MeshRenderer cubeMesh;
@@ -22,10 +21,13 @@ public class Tile : MonoBehaviour
     {
         originalMaterial = cubeMesh.material;
 
-        costText.text = cost.ToString();
-        costText.gameObject.SetActive(false);
-        positionText.text = $"P: ({row},{col})";
-        positionText.gameObject.SetActive(false);
+        infoText.text = $"P: ({row},{col})\n" +
+            $"Cost: {cost}\n" +
+            $"F:\n" +
+            $"G:\n" +
+            $"H:\n" +
+            $"{(GridMap.ETileType)cost}";
+        infoText.gameObject.SetActive(false);
 
         bIsSelectable = cost < (int)GridMap.ETileType.WALL;
 
@@ -34,21 +36,20 @@ public class Tile : MonoBehaviour
 
     private void PlaySceneGameMode_OnDebugViewToggled(object sender, PlaySceneGameMode.OnDebugViewToggledEventArgs e)
     {
-        costText.gameObject.SetActive(e.bIsDebugView);
-        positionText.gameObject.SetActive(e.bIsDebugView);
+        infoText.gameObject.SetActive(e.bIsDebugView);
         overlayGO.SetActive(e.bIsDebugView);
-        selectableGO.SetActive(false);
+        //selectableGO.SetActive(false);
     }
 
     public void BeingHovered()
     {
-        overlayGO.SetActive(false);
+        //overlayGO.SetActive(false);
         selectableGO.SetActive(true);
     }
 
     public void ExitBeingHovered()
     {
-        overlayGO.SetActive(true);
+        //overlayGO.SetActive(true);
         selectableGO.SetActive(false);
     }
 
@@ -74,4 +75,5 @@ public class Tile : MonoBehaviour
     public int GetCost() { return cost; }
     public void SetCost(int newCost) { cost = newCost; }
     public bool IsSelectable() { return bIsSelectable; }
+    public string GetInfoText() { return infoText.text; }
 }

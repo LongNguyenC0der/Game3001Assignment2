@@ -38,8 +38,7 @@ public class PlaySceneGameMode : MonoBehaviour
         player.SetActive(false);
         target.SetActive(false);
         totalCostText.text = "Total Path Cost: ...";
-        pathInfoText.text = "F:\nG:\nH:";
-        pathInfoText.gameObject.SetActive(false);
+        pathInfoText.text = string.Empty;
     }
 
     private void Update()
@@ -106,7 +105,7 @@ public class PlaySceneGameMode : MonoBehaviour
             gridMap.ResetAllTiles(true);
             path.Clear();
             totalCostText.text = "Total Path Cost: ...";
-            pathInfoText.text = "F:\nG:\nH:";
+            pathInfoText.text = string.Empty;
         }
 
         // Find Shortest Path
@@ -124,8 +123,6 @@ public class PlaySceneGameMode : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.H))
         {
             bIsDebugView = !bIsDebugView;
-            pathInfoText.gameObject.SetActive(bIsDebugView);
-            if (!bIsDebugView) currentlyHoveredTile = null;
             OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
         }
 
@@ -153,46 +150,45 @@ public class PlaySceneGameMode : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Only run on debug view mode
-        if (bIsDebugView)
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        // If RayCast hit anything
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            // If RayCast hit anything
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            // If it hits a Tile and the Tile is selectable (A.K.A not a Wall)
+            if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile) && tile.IsSelectable())
             {
-                // If it hits a Tile and the Tile is selectable (A.K.A not a Wall)
-                if (hit.collider.gameObject.TryGetComponent<Tile>(out Tile tile) && tile.IsSelectable())
+                // If the currentlyHoveredTile is not the tile that is currently being hovered on screen.
+                if (currentlyHoveredTile != tile)
                 {
-                    // If the currentlyHoveredTile is not the tile that is currently being hovered on screen.
-                    if (currentlyHoveredTile != tile)
-                    {
-                        // If the currentlyHoveredTile is not null, which means we are unhovereing from a currently selected tile.
-                        if (currentlyHoveredTile) currentlyHoveredTile.ExitBeingHovered();
+                    // If the currentlyHoveredTile is not null, which means we are unhovereing from a currently selected tile.
+                    if (currentlyHoveredTile) currentlyHoveredTile.ExitBeingHovered();
 
-                        // Set the currentlyHoveredTile to the tile that RayCast hit.
-                        currentlyHoveredTile = tile;
-                        currentlyHoveredTile.BeingHovered();
-                    }
-                }
-                // If the thing getting hit is not a Tile, which is unlikely, since we only have Tiles on screen
-                else
-                {
-                    if (currentlyHoveredTile)
-                    {
-                        currentlyHoveredTile.ExitBeingHovered();
-                        currentlyHoveredTile = null;
-                    }
+                    // Set the currentlyHoveredTile to the tile that RayCast hit.
+                    currentlyHoveredTile = tile;
+                    currentlyHoveredTile.BeingHovered();
+                    pathInfoText.text = currentlyHoveredTile.GetInfoText();
                 }
             }
-            // If Raycast not hitting anything
+            // If the thing getting hit is not a Tile, which is unlikely, since we only have Tiles on screen
             else
             {
-                if(currentlyHoveredTile)
+                if (currentlyHoveredTile)
                 {
                     currentlyHoveredTile.ExitBeingHovered();
                     currentlyHoveredTile = null;
+                    pathInfoText.text = string.Empty;
                 }
+            }
+        }
+        // If Raycast not hitting anything
+        else
+        {
+            if (currentlyHoveredTile)
+            {
+                currentlyHoveredTile.ExitBeingHovered();
+                currentlyHoveredTile = null;
+                pathInfoText.text = string.Empty;
             }
         }
     }
@@ -237,7 +233,7 @@ public class PlaySceneGameMode : MonoBehaviour
 
             path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost, out float currentCostSoFar, out float heuristic);
 
-            pathInfoText.text = $"F: {currentCostSoFar}\nG: {currentCostSoFar}\nH: {heuristic}";
+            //pathInfoText.text = $"F: {currentCostSoFar}\nG: {currentCostSoFar}\nH: {heuristic}";
 
             if (path.Count > 0)
             {
@@ -263,7 +259,6 @@ public class PlaySceneGameMode : MonoBehaviour
             gridMap.ResetAllTiles(false);
             StartCoroutine(FindShortestPath());
             totalCostText.text = "Total Path Cost: ...";
-            pathInfoText.text = "F:\nG:\nH:";
         }
     }
 
