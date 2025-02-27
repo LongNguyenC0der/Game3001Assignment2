@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public struct Node
 {
@@ -11,7 +12,7 @@ public struct Node
 public static class Pathing
 {
     
-    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost)
+    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost, out float currentCostSoFar)
     {
         Node[,] nodes = new Node[GridMap.ROWS, GridMap.COLUMNS];
         for (int row = 0; row < GridMap.ROWS; row++)
@@ -31,7 +32,9 @@ public static class Pathing
         bool found = false;
         HashSet<Tile> debugTiles = new HashSet<Tile>();
 
-        float tempTotalCost = 0.0f;
+        totalPathCost = 0.0f;
+        currentCostSoFar = 0.0f;
+
         for (int i = 0; i < iterations; i++)
         {
             Tile front = null;
@@ -47,10 +50,13 @@ public static class Pathing
                 }
             }
 
+            if (!front) Debug.LogError("Something went wrong!");
+
             // Stop searching if we've reached our goal
             if (front.Equals(end))
             {
-                tempTotalCost = nodes[front.GetRow(), front.GetCol()].cost;
+                totalPathCost = nodes[front.GetRow(), front.GetCol()].cost;
+                currentCostSoFar = totalPathCost;
                 found = true;
                 break;
             }
@@ -65,6 +71,7 @@ public static class Pathing
                 float currentCost = nodes[front.GetRow(), front.GetCol()].cost + adj.GetCost();
                 if (currentCost < previousCost)
                 {
+                    currentCostSoFar = currentCost;
                     open.Add(adj, currentCost);
                     nodes[adj.GetRow(), adj.GetCol()].cost = currentCost;
                     nodes[adj.GetRow(), adj.GetCol()].previousTile = front;
@@ -82,7 +89,6 @@ public static class Pathing
 
         // If we've found the end, retrace our steps. Otherwise, there's no solution so return an empty list.
         List<Tile> result = found ? Retrace(nodes, start, end) : new List<Tile>();
-        totalPathCost = tempTotalCost;
         return result;
     }
 

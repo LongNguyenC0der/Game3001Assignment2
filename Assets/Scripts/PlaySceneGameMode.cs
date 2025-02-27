@@ -9,11 +9,11 @@ public class PlaySceneGameMode : MonoBehaviour
     public class OnDebugViewToggledEventArgs : EventArgs { public bool bIsDebugView; }
     public event EventHandler<OnDebugViewToggledEventArgs> OnDebugViewToggled;
 
-    private const float BOUNDARY = 7.0f;
     private const float MOVE_SPEED = 2.0f;
     private const float TURN_SPEED = 100.0f;
 
     [SerializeField] private TMP_Text totalCostText;
+    [SerializeField] private TMP_Text pathInfoText;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject targetPrefab;
     private GameObject player;
@@ -38,6 +38,8 @@ public class PlaySceneGameMode : MonoBehaviour
         player.SetActive(false);
         target.SetActive(false);
         totalCostText.text = "Total Path Cost: ...";
+        pathInfoText.text = "F:\nG:\nH:";
+        pathInfoText.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -104,6 +106,7 @@ public class PlaySceneGameMode : MonoBehaviour
             gridMap.ResetAllTiles(true);
             path.Clear();
             totalCostText.text = "Total Path Cost: ...";
+            pathInfoText.text = "F:\nG:\nH:";
         }
 
         // Find Shortest Path
@@ -121,6 +124,7 @@ public class PlaySceneGameMode : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.H))
         {
             bIsDebugView = !bIsDebugView;
+            pathInfoText.gameObject.SetActive(bIsDebugView);
             if (!bIsDebugView) currentlyHoveredTile = null;
             OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
         }
@@ -231,7 +235,9 @@ public class PlaySceneGameMode : MonoBehaviour
         {
             iterations++;
 
-            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost);
+            path = Pathing.Dijkstra(gridMap.GetStartTile(), gridMap.GetEndTile(), gridMap.GetTileList(), iterations, gridMap, out float totalPathCost, out float currentCostSoFar);
+
+            pathInfoText.text = $"F: {currentCostSoFar}\nG: {currentCostSoFar}\nH:";
 
             if (path.Count > 0)
             {
@@ -257,13 +263,10 @@ public class PlaySceneGameMode : MonoBehaviour
             gridMap.ResetAllTiles(false);
             StartCoroutine(FindShortestPath());
             totalCostText.text = "Total Path Cost: ...";
+            pathInfoText.text = "F:\nG:\nH:";
         }
     }
 
-    private Vector3 GetRandomPosition()
-    {
-        return new Vector3(UnityEngine.Random.Range(-BOUNDARY, BOUNDARY), 0.0f, UnityEngine.Random.Range(-BOUNDARY, BOUNDARY));
-    }
     private bool HasPlayerMovedFromStartingLocation()
     {
         return Vector3.Distance(player.transform.position, gridMap.GetStartTile().transform.position) >= 1f;
