@@ -485,19 +485,20 @@ MonoBehaviour:
 
     1. You need
     to find path first before moving actor (It just feels sensible, and looks nice
-    as well!).
+    as well!). *Repeatable.
 
-    2. Once you have a path, you can redo the movement anytime you
-    like.
+    2. Once you have a path, you can redo the movement
+    anytime you like.
 
-    3. Changing the start or end tile will redo pathfinding immediately
-    (I think it is one of the requirement).
+    3. Changing the start or end tile will redo pathfinding
+    immediately (I think it is one of the requirement).
 
-    4. Even though wall tiles have a
-    cost. Our algorithm won''t consider it since we do check for wall and just skip
-    them for performance. Technically making them "impassable".
+    4. Even though wall
+    tiles have a cost. Our algorithm won''t consider it since we do check for wall
+    and just skip them for performance. Technically making them "impassable".
 
-    5. Have fun!'
+    5.
+    Have fun!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

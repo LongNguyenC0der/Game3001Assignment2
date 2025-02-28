@@ -80,12 +80,13 @@ public static class Pathing
                 float h = Mathf.Abs(end.Row - adj.Row) + Mathf.Abs(end.Col - adj.Col);
 
                 // f = g + h (Estimated Total Cost)
-                float f = currentCost + h;
+                // f = g + h * (1 + eps)
+                float f = currentCost + h * (1 + float.Epsilon);
 
                 //F,G,H for the front tile
                 nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
                 nodes[front.Row, front.Col].currentTile.H = Mathf.Abs(end.Row - front.Row) + Mathf.Abs(end.Col - front.Col);
-                nodes[front.Row, front.Col].currentTile.F = nodes[front.Row, front.Col].currentTile.G + nodes[front.Row, front.Col].currentTile.H;
+                nodes[front.Row, front.Col].currentTile.F = nodes[front.Row, front.Col].currentTile.G + nodes[front.Row, front.Col].currentTile.H * (1 + float.Epsilon);
 
                 // Note to self: pretty funky to wrap my head around
                 // F only determine which tile to explore first
@@ -101,7 +102,7 @@ public static class Pathing
                     // F,G,H for adj tile
                     nodes[adj.Row, adj.Col].currentTile.G = currentCost;
                     nodes[adj.Row, adj.Col].currentTile.H = h;
-                    nodes[adj.Row, adj.Col].currentTile.F = currentCost + h;
+                    nodes[adj.Row, adj.Col].currentTile.F = currentCost + h * (1 + float.Epsilon);
 
                     // For visualization purpose only
                     consideredTiles.Add(adj);
