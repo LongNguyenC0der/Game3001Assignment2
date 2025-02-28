@@ -12,7 +12,7 @@ public struct Node
 public static class Pathing
 {
     
-    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost)
+    public static List<Tile> AStarPathing(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost)
     {
         Node[,] nodes = new Node[GridMap.ROWS, GridMap.COLUMNS];
         for (int row = 0; row < GridMap.ROWS; row++)
@@ -63,6 +63,9 @@ public static class Pathing
             // Update tile cost and add it to open list if the new cost is cheaper than the old cost
             foreach (Tile adj in Adjacent(front, gridMap.GetTileList(), GridMap.ROWS, GridMap.COLUMNS))
             {
+                // Optional: Depend on the scenario, but in our assignment, walls are intent to be impassible, so just skip it for performance
+                if (adj.Cost >= (int)GridMap.ETileType.WALL) continue;
+
                 float previousCost = nodes[adj.Row, adj.Col].cost;
                 float currentCost = nodes[front.Row, front.Col].cost + adj.Cost;
 
@@ -72,7 +75,7 @@ public static class Pathing
                 // f = g + h (Estimated Total Cost)
                 float f = currentCost + h;
 
-                //F,G,H for each tile
+                //F,G,H for the front tile
                 nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
                 nodes[front.Row, front.Col].currentTile.H = Mathf.Abs(end.Row - front.Row) + Mathf.Abs(end.Col - front.Col);
                 nodes[front.Row, front.Col].currentTile.F = nodes[front.Row, front.Col].currentTile.G + nodes[front.Row, front.Col].currentTile.H;
@@ -87,6 +90,11 @@ public static class Pathing
 
                     nodes[adj.Row, adj.Col].cost = currentCost;
                     nodes[adj.Row, adj.Col].previousTile = front;
+
+                    // F,G,H for adj tile
+                    nodes[adj.Row, adj.Col].currentTile.G = currentCost;
+                    nodes[adj.Row, adj.Col].currentTile.H = h;
+                    nodes[adj.Row, adj.Col].currentTile.F = currentCost + h;
                 }
             }
         }

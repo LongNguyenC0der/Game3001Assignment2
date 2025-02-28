@@ -93,7 +93,9 @@ public class Tile : MonoBehaviour
     public void ResetTile()
     {
         cubeMesh.material = originalMaterial;
+        F = -1.0f;
         G = -1.0f;
+        H = -1.0f;
     }
 
     public void UpdateInfoText()
