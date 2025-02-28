@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -106,6 +107,10 @@ public class PlaySceneGameMode : MonoBehaviour
             path.Clear();
             totalCostText.text = "Total Path Cost: ...";
             pathInfoText.text = string.Empty;
+
+            // Pretty annoying since we're not using objects pooling, we probably should...
+            // Have to delay the DebugInvoke event in case we're reseting while in debug mode. Just to give the newly created tiles a brief moment to subcribe back in.
+            DelayDebugInvoke();
         }
 
         // Find Shortest Path
@@ -258,6 +263,12 @@ public class PlaySceneGameMode : MonoBehaviour
             StartCoroutine(FindShortestPath());
             totalCostText.text = "Total Path Cost: ...";
         }
+    }
+
+    private async void DelayDebugInvoke()
+    {
+        await Task.Delay(10); // 10 ms = 0.01s
+        OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
     }
 
     private bool HasPlayerMovedFromStartingLocation()

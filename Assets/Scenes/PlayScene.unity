@@ -495,7 +495,7 @@ MonoBehaviour:
 
     4. Even though wall tiles have a
     cost. Our algorithm won''t consider it since we do check for wall and just skip
-    them for performance.
+    them for performance. Technically making them "impassable".
 
     5. Have fun!'
   m_isRightToLeft: 0

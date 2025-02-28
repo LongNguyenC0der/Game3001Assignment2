@@ -28,8 +28,6 @@ public static class Pathing
         Dictionary<Tile, float> open = new Dictionary<Tile, float>();
         open.Add(start, 0.0f);
         nodes[start.Row, start.Col].cost = 0.0f;
-        //nodes[start.Row, start.Col].currentTile.G = nodes[start.Row, start.Col].cost;
-        //nodes[start.Row, start.Col].currentTile.H = Mathf.Abs(end.Row - start.Row) + Mathf.Abs(end.Col - start.Col);
 
         bool found = false;
         HashSet<Tile> debugTiles = new HashSet<Tile>();
@@ -38,8 +36,13 @@ public static class Pathing
 
         for (int i = 0; i < iterations; i++)
         {
+            if (open.Count == 0)
+            {
+                Debug.LogError("Oops! Something went wrong! No possible path found");
+                return new List<Tile>();
+            }
+
             // Examine the tile with the lowest cost
-            if (open.Count == 0) Debug.LogError("Oops! Something went wrong! No possible path found");
             Tile front = open.OrderBy((key) => key.Value).First().Key;
             open.Remove(front);
 
@@ -63,7 +66,7 @@ public static class Pathing
             // Update tile cost and add it to open list if the new cost is cheaper than the old cost
             foreach (Tile adj in Adjacent(front, gridMap.GetTileList(), GridMap.ROWS, GridMap.COLUMNS))
             {
-                // Optional: Depend on the scenario, but in our assignment, walls are intent to be impassible, so just skip it for performance
+                // Optional: Depend on the scenario, but in our assignment, walls are intent to be impassable, so just skip it for performance
                 if (adj.Cost >= (int)GridMap.ETileType.WALL) continue;
 
                 float previousCost = nodes[adj.Row, adj.Col].cost;

@@ -11,6 +11,8 @@ public class Tile : MonoBehaviour
     [SerializeField] private Material retracedMaterial;
     private Material originalMaterial;
 
+    private PlaySceneGameMode playSceneGameMode;
+
     private float f = -1.0f;
     private float g = -1.0f;
     private float h = -1.0f;
@@ -51,6 +53,7 @@ public class Tile : MonoBehaviour
 
     private void Start()
     {
+        playSceneGameMode = FindFirstObjectByType<PlaySceneGameMode>();
         originalMaterial = cubeMesh.material;
 
         UpdateInfoText();
@@ -58,7 +61,15 @@ public class Tile : MonoBehaviour
 
         bIsSelectable = Cost < (int)GridMap.ETileType.WALL;
 
-        FindFirstObjectByType<PlaySceneGameMode>().OnDebugViewToggled += PlaySceneGameMode_OnDebugViewToggled;
+        playSceneGameMode.OnDebugViewToggled += PlaySceneGameMode_OnDebugViewToggled;
+    }
+
+    private void OnDestroy()
+    {
+        if(playSceneGameMode)
+        {
+            playSceneGameMode.OnDebugViewToggled -= PlaySceneGameMode_OnDebugViewToggled;
+        }
     }
 
     private void PlaySceneGameMode_OnDebugViewToggled(object sender, PlaySceneGameMode.OnDebugViewToggledEventArgs e)
