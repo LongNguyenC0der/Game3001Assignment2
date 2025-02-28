@@ -240,6 +240,7 @@ MonoBehaviour:
   cubeMesh: {fileID: 4858562599170140395}
   exploredMaterial: {fileID: 2100000, guid: 037b3f8f8451aca4b8d35e198c7d0479, type: 2}
   retracedMaterial: {fileID: 2100000, guid: 5f79a81c938441f418686a2715e7e061, type: 2}
+  consideredMaterial: {fileID: 2100000, guid: e76010572e2ab894bbc21e88a7e5d290, type: 2}
 --- !u!65 &6683373717174422858
 BoxCollider:
   m_ObjectHideFlags: 0

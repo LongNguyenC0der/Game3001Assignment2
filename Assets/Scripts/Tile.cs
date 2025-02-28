@@ -9,6 +9,7 @@ public class Tile : MonoBehaviour
     [SerializeField] private MeshRenderer cubeMesh;
     [SerializeField] private Material exploredMaterial;
     [SerializeField] private Material retracedMaterial;
+    [SerializeField] private Material consideredMaterial;
     private Material originalMaterial;
 
     private PlaySceneGameMode playSceneGameMode;
@@ -99,6 +100,11 @@ public class Tile : MonoBehaviour
     public void BeingRetraced()
     {
         cubeMesh.material = retracedMaterial;
+    }
+
+    public void WasConsidered()
+    {
+        cubeMesh.material = consideredMaterial;
     }
 
     public void ResetTile()

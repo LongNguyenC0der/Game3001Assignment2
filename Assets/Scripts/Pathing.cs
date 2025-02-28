@@ -30,7 +30,10 @@ public static class Pathing
         nodes[start.Row, start.Col].cost = 0.0f;
 
         bool found = false;
+
+        // Purely for visualization, doesn't affect our algorithm in any ways
         HashSet<Tile> debugTiles = new HashSet<Tile>();
+        HashSet<Tile> consideredTiles = new HashSet<Tile>();
 
         totalPathCost = 0.0f;
 
@@ -62,6 +65,7 @@ public static class Pathing
 
             // If we want to see the visual
             debugTiles.Add(front);
+            if (consideredTiles.Contains(front)) consideredTiles.Remove(front);
 
             // Update tile cost and add it to open list if the new cost is cheaper than the old cost
             foreach (Tile adj in Adjacent(front, gridMap.GetTileList(), GridMap.ROWS, GridMap.COLUMNS))
@@ -98,6 +102,9 @@ public static class Pathing
                     nodes[adj.Row, adj.Col].currentTile.G = currentCost;
                     nodes[adj.Row, adj.Col].currentTile.H = h;
                     nodes[adj.Row, adj.Col].currentTile.F = currentCost + h;
+
+                    // For visualization purpose only
+                    consideredTiles.Add(adj);
                 }
             }
         }
@@ -107,6 +114,13 @@ public static class Pathing
             foreach (Tile tile in debugTiles)
             {
                 tile.BeingExplored();
+            }
+        }
+        else
+        {
+            foreach (Tile tile in consideredTiles)
+            {
+                tile.WasConsidered();
             }
         }
 
