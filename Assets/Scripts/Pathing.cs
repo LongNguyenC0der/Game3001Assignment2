@@ -12,7 +12,7 @@ public struct Node
 public static class Pathing
 {
     
-    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost, out float heuristic)
+    public static List<Tile> Dijkstra(Tile start, Tile end, List<List<Tile>> tileList, int iterations, GridMap gridMap, out float totalPathCost)
     {
         Node[,] nodes = new Node[GridMap.ROWS, GridMap.COLUMNS];
         for (int row = 0; row < GridMap.ROWS; row++)
@@ -28,16 +28,18 @@ public static class Pathing
         Dictionary<Tile, float> open = new Dictionary<Tile, float>();
         open.Add(start, 0.0f);
         nodes[start.Row, start.Col].cost = 0.0f;
+        //nodes[start.Row, start.Col].currentTile.G = nodes[start.Row, start.Col].cost;
+        //nodes[start.Row, start.Col].currentTile.H = Mathf.Abs(end.Row - start.Row) + Mathf.Abs(end.Col - start.Col);
 
         bool found = false;
         HashSet<Tile> debugTiles = new HashSet<Tile>();
 
         totalPathCost = 0.0f;
-        heuristic = 0.0f;
 
         for (int i = 0; i < iterations; i++)
         {
             // Examine the tile with the lowest cost
+            if (open.Count == 0) Debug.LogError("Oops! Something went wrong! No possible path found");
             Tile front = open.OrderBy((key) => key.Value).First().Key;
             open.Remove(front);
 
@@ -47,7 +49,9 @@ public static class Pathing
                 totalPathCost = nodes[front.Row, front.Col].cost;
 
                 //F,G,H for end tile
-                nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
+                nodes[front.Row, front.Col].currentTile.G = totalPathCost;
+                nodes[front.Row, front.Col].currentTile.H = 0;
+                nodes[front.Row, front.Col].currentTile.F = totalPathCost;
 
                 found = true;
                 break;
@@ -62,15 +66,16 @@ public static class Pathing
                 float previousCost = nodes[adj.Row, adj.Col].cost;
                 float currentCost = nodes[front.Row, front.Col].cost + adj.Cost;
 
-                //F,G,H for each tile
-                nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
-
-
                 // Manhattan Distance (absolute sum of differences)
                 float h = Mathf.Abs(end.Row - adj.Row) + Mathf.Abs(end.Col - adj.Col);
-                heuristic = h;
+
                 // f = g + h (Estimated Total Cost)
                 float f = currentCost + h;
+
+                //F,G,H for each tile
+                nodes[front.Row, front.Col].currentTile.G = nodes[front.Row, front.Col].cost;
+                nodes[front.Row, front.Col].currentTile.H = Mathf.Abs(end.Row - front.Row) + Mathf.Abs(end.Col - front.Col);
+                nodes[front.Row, front.Col].currentTile.F = nodes[front.Row, front.Col].currentTile.G + nodes[front.Row, front.Col].currentTile.H;
 
                 // Note to self: pretty funky to wrap my head around
                 // F only determine which tile to explore first

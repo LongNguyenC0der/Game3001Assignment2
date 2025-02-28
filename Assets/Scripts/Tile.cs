@@ -13,11 +13,20 @@ public class Tile : MonoBehaviour
 
     private float f = -1.0f;
     private float g = -1.0f;
+    private float h = -1.0f;
 
     public int Row { get; set; }
     public int Col { get; set; }
     public int Cost { get; set; }
-    public float F { get; set; }
+    public float F
+    {
+        get => f;
+        set
+        {
+            f = value;
+            UpdateInfoText();
+        }
+    }
     public float G
     {
         get => g;
@@ -27,7 +36,15 @@ public class Tile : MonoBehaviour
             UpdateInfoText();
         }
     }
-    public float H { get; set; }
+    public float H
+    {
+        get => h;
+        set
+        {
+            h = value;
+            UpdateInfoText();
+        }
+    }
 
     private bool bIsSelectable = true;
     private bool bIsDebugView = false;
@@ -83,9 +100,9 @@ public class Tile : MonoBehaviour
     {
         infoText.text = $"P: ({Row},{Col})\n" +
             $"Cost: {Cost}\n" +
-            $"F: {F}\n" +
+            $"F: {(F < 0 ? "N/A" : F)}\n" +
             $"G: {(G < 0 ? "N/A" : G)}\n" +
-            $"H: {H}\n" +
+            $"H: {(H < 0 ? "N/A" : H)}\n" +
             $"{(GridMap.ETileType)Cost}";
     }
 
