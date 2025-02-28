@@ -5,7 +5,9 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
     private AudioSource soundSource;
-    [SerializeField] private AudioClip soundEffect;
+    [SerializeField] private AudioClip buttonSound;
+    [SerializeField] private AudioClip stepSound;
+    [SerializeField] private AudioClip fanfare;
 
     private void Awake()
     {
@@ -22,8 +24,18 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void PlayEffectSound()
+    public void PlayButtonSound()
     {
-        soundSource.PlayOneShot(soundEffect);
+        soundSource.PlayOneShot(buttonSound);
+    }
+
+    public void PlayStepSound()
+    {
+        soundSource.PlayOneShot(stepSound);
+    }
+
+    public void PlayFanfare()
+    {
+        soundSource.PlayOneShot(fanfare);
     }
 }

@@ -1289,10 +1289,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: pf_SoundManager
       objectReference: {fileID: 0}
-    - target: {fileID: 1645744423802974902, guid: 7e24548d7267f804aaca755a2bd16d0a, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2871326477475017158, guid: 7e24548d7267f804aaca755a2bd16d0a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

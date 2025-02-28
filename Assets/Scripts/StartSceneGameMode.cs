@@ -10,7 +10,7 @@ public class StartSceneGameMode : MonoBehaviour
     {
         playButton.onClick.AddListener(() =>
         {
-            SoundManager.Instance.PlayEffectSound();
+            SoundManager.Instance.PlayButtonSound();
             SceneManager.LoadScene(1);
         });
     }

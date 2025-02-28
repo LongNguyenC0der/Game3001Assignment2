@@ -55,6 +55,7 @@ public class PlaySceneGameMode : MonoBehaviour
             }
             else
             {
+                SoundManager.Instance.PlayFanfare();
                 bCanMove = false;
             }
         }
@@ -100,6 +101,8 @@ public class PlaySceneGameMode : MonoBehaviour
         // Reset
         if (Input.GetKeyDown(KeyCode.R))
         {
+            SoundManager.Instance.PlayButtonSound();
+
             player.SetActive(false);
             target.SetActive(false);
             currentlyHoveredTile = null;
@@ -116,6 +119,8 @@ public class PlaySceneGameMode : MonoBehaviour
         // Find Shortest Path
         else if (!bCanMove && Input.GetKeyDown(KeyCode.F))
         {
+            SoundManager.Instance.PlayButtonSound();
+
             if (gridMap.GetStartTile())
             {
                 if (HasPlayerMovedFromStartingLocation()) SetUpActor(gridMap.GetStartTile());
@@ -127,6 +132,8 @@ public class PlaySceneGameMode : MonoBehaviour
         // Debug View Toggle
         else if (Input.GetKeyDown(KeyCode.H))
         {
+            SoundManager.Instance.PlayButtonSound();
+
             bIsDebugView = !bIsDebugView;
             OnDebugViewToggled?.Invoke(this, new OnDebugViewToggledEventArgs { bIsDebugView = this.bIsDebugView });
         }
@@ -134,6 +141,8 @@ public class PlaySceneGameMode : MonoBehaviour
         // Move actor to the goal
         else if (Input.GetKeyDown(KeyCode.M))
         {
+            SoundManager.Instance.PlayButtonSound();
+
             if (path.Count > 0)
             {
                 // Since our path retraces from end to start, using a Stack is perfect here.
@@ -210,7 +219,7 @@ public class PlaySceneGameMode : MonoBehaviour
         player.transform.position = newPos;
 
         player.SetActive(true);
-        //SoundManager.Instance.PlayEffectSound();
+        SoundManager.Instance.PlayButtonSound();
     }
 
     private void SetUpGoal()
@@ -225,7 +234,7 @@ public class PlaySceneGameMode : MonoBehaviour
         target.transform.position = newPos;
 
         target.SetActive(true);
-        //SoundManager.Instance.PlayEffectSound();
+        SoundManager.Instance.PlayButtonSound();
     }
 
     private IEnumerator FindShortestPath()
@@ -293,6 +302,7 @@ public class PlaySceneGameMode : MonoBehaviour
         
         if (Vector3.Distance(player.transform.position, offset) <= 0.01f)
         {
+            SoundManager.Instance.PlayStepSound();
             return true;
         }
 

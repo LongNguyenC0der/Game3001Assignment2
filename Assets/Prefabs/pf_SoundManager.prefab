@@ -45,7 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b74deef8a0ff4f4fb16636dd77827ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundEffect: {fileID: 8300000, guid: d825a8daf3055a6469b2adf50ff04eb0, type: 3}
+  buttonSound: {fileID: 8300000, guid: d825a8daf3055a6469b2adf50ff04eb0, type: 3}
+  stepSound: {fileID: 8300000, guid: f4068ae211ef72a4780726df73a4ad91, type: 3}
+  fanfare: {fileID: 8300000, guid: bdbaeac4715d1e04d8a9aaabfcc9c3a1, type: 3}
 --- !u!82 &676012753408389807
 AudioSource:
   m_ObjectHideFlags: 0
@@ -56,8 +58,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 457c70f3d22c7354ab6858af663776e4, type: 3}
-  m_Resource: {fileID: 8300000, guid: 457c70f3d22c7354ab6858af663776e4, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 71d8e64f899214643b342c1dbc86aaf6, type: 3}
+  m_Resource: {fileID: 8300000, guid: 71d8e64f899214643b342c1dbc86aaf6, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.25
   m_Pitch: 1

@@ -17,7 +17,8 @@ public class GridMap : MonoBehaviour
     [SerializeField] private Tile waterTilePrefab;
     [SerializeField] private Tile wallTilePrefab;
 
-    // map this to the enum values. The value is basically also the cost of that tile
+    // Map this to the enum values. The value is basically also the cost of that tile
+    // Since we've moved to using randomize tiles, these won't matter, but good for visualization!
     private int[,] tiles =
     {
         { 1, 1, 1, 1, 255, 1, 1, 1, 1, 1 },
@@ -40,50 +41,6 @@ public class GridMap : MonoBehaviour
     private void Start()
     {
         RandomizeGridMap();
-        //float z = 0.0f;
-
-        //for (int row = 0; row < ROWS; row++)
-        //{
-        //    List<Tile> rowTileList = new List<Tile>();
-        //    float x = 0.0f;
-
-        //    for (int col = 0; col < COLUMNS; col++)
-        //    {
-        //        // Determine the type of tile here
-        //        ETileType type = (ETileType)tiles[row, col];
-        //        Tile tileToSpawn = null;
-
-        //        switch(type)
-        //        {
-        //            case ETileType.GROUND:
-        //                tileToSpawn = groundTilePrefab;
-        //                break;
-        //            case ETileType.WATER:
-        //                tileToSpawn = waterTilePrefab;
-        //                break;
-        //            case ETileType.WALL:
-        //                tileToSpawn = wallTilePrefab;
-        //                break;
-        //            default:
-        //                tileToSpawn = null;
-        //                break;
-        //        }
-
-        //        if (tileToSpawn)
-        //        {
-        //            Tile tile = Instantiate<Tile>(tileToSpawn, this.transform);
-        //            tile.transform.position = new Vector3(x, 0, z);
-        //            tile.Row = row;
-        //            tile.Col = col;
-        //            tile.Cost = (int)type;
-        //            rowTileList.Add(tile);
-        //            x += 1.0f;
-        //        }
-        //    }
-
-        //    tileList.Add(rowTileList);
-        //    z -= 1.0f;
-        //}
     }
 
     public void ResetAllTiles(bool bIsHardReset)
